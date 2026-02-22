@@ -1,0 +1,95 @@
+﻿@page "/"
+@using System.Runtime.InteropServices
+@inject SightingService SightingService
+@inject LocalStorageService localStorageService;
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<dialog open=@showModal>
+    <h2>Wat is je naam</h2>
+    <input @bind="username">
+    <button @onclick="SaveUsername" type="button">Opslaan</button>
+</dialog>
+
+<h1>Renee Energy Counter</h1>
+<h2>You can do it! <img height="50" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F64.media.tumblr.com%2F82e28e5699a3d7a330986c4a64ac619f%2Fd0f4d3e1ceb41066-a9%2Fs128x128u_c1%2F555cd16ad8cb4a8d0486e30697dbf23d70cdefeb.jpg&f=1&nofb=1&ipt=4c34a21464876a3c8d907f305b95a19b17ac9e0f2c9d36be22df262b5a272134" alt=""></h2>
+
+<div class="stats-container">
+    <h2>
+        <span>@Today</span>
+        <time>Vandaag</time>
+    </h2>
+
+    <h2>
+        <span>@ThisWeek</span>
+        <time>Deze week</time>
+    </h2>
+
+    <h2>
+        <span>@ThisMonth</span>
+        <time>Deze maand</time>
+    </h2>
+
+    <h2>
+        <span>@Total</span>
+        <time>Totaal</time>
+    </h2>
+</div>
+
+<button @onclick="Add">Toevoegen</button>
+
+<ul>
+    @foreach (var sightingGroup in sightings.GroupBy(s => s.SpottedOn.ToShortDateString()))
+    {
+        <li>
+            <h3>@sightingGroup.Key</h3>
+
+            <ul>
+                @foreach (var sighting in sightingGroup) {
+                    <li>> @sighting.SpottedOn.ToString("HH:mm") (toegevoegd door @sighting.spotterName)</li>
+                }
+            </ul>
+        </li>
+
+    }
+</ul>
+
+@code {
+
+    string? username;
+
+    bool showModal = false;
+
+    EnergySighting[] sightings = [];
+
+    int Total => sightings.Length;
+    int Today => sightings.Where(s => DateTime.Today == s.SpottedOn.Date).Count();
+    int ThisWeek => sightings.Where(s => (DateTime.Now - s.SpottedOn).TotalDays <= 7).Count();
+    int ThisMonth => sightings.Where(s => (DateTime.Now - s.SpottedOn).TotalDays <= 30).Count();
+
+    protected override async Task OnInitializedAsync()
+    {
+        sightings = SightingService.GetEnergySightings();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) {
+            username = await localStorageService.Get("username");
+            showModal = username is null;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    async Task SaveUsername() {
+        await localStorageService.Set("username", username);
+        showModal = username is null;
+    }
+
+    void Add() {
+        SightingService.AddSighting(new EnergySighting(DateTime.Now, username!));
+        sightings = SightingService.GetEnergySightings();
+    }
+
+}
