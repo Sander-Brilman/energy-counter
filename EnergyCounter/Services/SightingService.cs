@@ -52,4 +52,4 @@ public class SightingService
     }
 }
 
-public record EnergySighting(DateTime SpottedOn, string spotterName);
+public record EnergySighting(DateTime SpottedOn, string spotterName, int ml);

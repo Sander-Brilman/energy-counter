@@ -17,27 +17,28 @@
 
 <div class="stats-container">
     <h2>
-        <span>@Today</span>
+        <span>@(TodayMl)ml</span>
         <time>Vandaag</time>
     </h2>
 
     <h2>
-        <span>@ThisWeek</span>
+        <span>@(ThisWeekL)L</span>
         <time>Deze week</time>
     </h2>
 
     <h2>
-        <span>@ThisMonth</span>
+        <span>@(ThisMonthL)L</span>
         <time>Deze maand</time>
     </h2>
 
     <h2>
-        <span>@Total</span>
+        <span>@(TotalL)L</span>
         <time>Totaal</time>
     </h2>
 </div>
 
-<button @onclick="Add">Toevoegen</button>
+<button @onclick="_ => Add(330)">Toevoegen 330 ml</button>
+<button @onclick="_ => Add(500)">Toevoegen 500 cl</button>
 
 <ul>
     @foreach (var sightingGroup in sightings.GroupBy(s => s.SpottedOn.ToShortDateString()))
@@ -47,7 +48,7 @@
 
             <ul>
                 @foreach (var sighting in sightingGroup) {
-                    <li>> @sighting.SpottedOn.ToString("HH:mm") (toegevoegd door @sighting.spotterName)</li>
+                    <li>>@(sighting.ml)ml - @sighting.SpottedOn.ToString("HH:mm") (toegevoegd door @sighting.spotterName)</li>
                 }
             </ul>
         </li>
@@ -63,10 +64,10 @@
 
     EnergySighting[] sightings = [];
 
-    int Total => sightings.Length;
-    int Today => sightings.Where(s => DateTime.Today == s.SpottedOn.Date).Count();
-    int ThisWeek => sightings.Where(s => (DateTime.Now - s.SpottedOn).TotalDays <= 7).Count();
-    int ThisMonth => sightings.Where(s => (DateTime.Now - s.SpottedOn).TotalDays <= 30).Count();
+    decimal TotalL => sightings.Sum(s => s.ml) / 1000m;
+    int TodayMl => sightings.Where(s => DateTime.Today == s.SpottedOn.Date).Sum(s => s.ml);
+    decimal ThisWeekL => sightings.Where(s => (DateTime.Now - s.SpottedOn).TotalDays <= 7).Sum(s => s.ml) / 1000m;
+    decimal ThisMonthL => sightings.Where(s => (DateTime.Now - s.SpottedOn).TotalDays <= 30).Sum(s => s.ml) / 1000m;
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,8 +88,8 @@
         showModal = username is null;
     }
 
-    void Add() {
-        SightingService.AddSighting(new EnergySighting(DateTime.Now, username!));
+    void Add(int ml) {
+        SightingService.AddSighting(new EnergySighting(DateTime.Now, username!, ml));
         sightings = SightingService.GetEnergySightings();
     }
 
