@@ -37,8 +37,9 @@
     </h2>
 </div>
 
+<button @onclick="_ => Add(250)">Toevoegen 330 ml</button>
 <button @onclick="_ => Add(330)">Toevoegen 330 ml</button>
-<button @onclick="_ => Add(500)">Toevoegen 500 cl</button>
+<button @onclick="_ => Add(500)">Toevoegen 500 ml</button>
 
 <ul>
     @foreach (var sightingGroup in sightings.GroupBy(s => s.SpottedOn.ToShortDateString()))
