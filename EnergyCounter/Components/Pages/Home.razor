@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.Runtime.InteropServices
+@using System.Globalization
 @inject SightingService SightingService
 @inject LocalStorageService localStorageService;
 @rendermode InteractiveServer
@@ -65,10 +66,14 @@
 
     EnergySighting[] sightings = [];
 
+    Calendar myCal = new CultureInfo("nl-NL").Calendar;
+
     decimal TotalL => sightings.Sum(s => s.ml) / 1000m;
     int TodayMl => sightings.Where(s => DateTime.Today == s.SpottedOn.Date).Sum(s => s.ml);
-    decimal ThisWeekL => sightings.Where(s => (DateTime.Now - s.SpottedOn).TotalDays <= 7).Sum(s => s.ml) / 1000m;
-    decimal ThisMonthL => sightings.Where(s => (DateTime.Now - s.SpottedOn).TotalDays <= 30).Sum(s => s.ml) / 1000m;
+
+    decimal ThisWeekL => sightings.GroupBy(s => myCal.GetWeekOfYear(s.SpottedOn, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday)).OrderByDescending(w => w.Key).First().Sum(w => w.ml);
+    
+    decimal ThisMonthL => sightings.GroupBy(w => w.SpottedOn.Month).OrderByDescending(w => w.Key).First().Sum(s => s.ml) / 1000m;
 
     protected override async Task OnInitializedAsync()
     {
