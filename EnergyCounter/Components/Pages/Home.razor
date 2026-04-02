@@ -23,7 +23,7 @@
     </h2>
 
     <h2>
-        <span>@(ThisWeekL)L</span>
+        <span>@(ThisWeekML)mL</span>
         <time>Deze week</time>
     </h2>
 
@@ -71,7 +71,7 @@
     decimal TotalL => sightings.Sum(s => s.ml) / 1000m;
     int TodayMl => sightings.Where(s => DateTime.Today == s.SpottedOn.Date).Sum(s => s.ml);
 
-    decimal ThisWeekL => sightings.GroupBy(s => myCal.GetWeekOfYear(s.SpottedOn, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday)).OrderByDescending(w => w.Key).First().Sum(w => w.ml);
+    decimal ThisWeekML => sightings.GroupBy(s => myCal.GetWeekOfYear(s.SpottedOn, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday)).OrderByDescending(w => w.Key).First().Sum(w => w.ml);
     
     decimal ThisMonthL => sightings.GroupBy(w => w.SpottedOn.Month).OrderByDescending(w => w.Key).First().Sum(s => s.ml) / 1000m;
 

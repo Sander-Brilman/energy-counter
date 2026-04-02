@@ -78,10 +78,10 @@ body {
     gap: 2rem;
 
     h2 {
-    background: white;
-    padding: 1em;
-    border-radius: 7px;
-
+        background: white;
+        padding: 1em;
+        border-radius: 7px;
+        border-left: rebeccapurple 10px solid;
     }
 
     margin-bottom: 2rem;
